@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PipelineSource } from './pipeline.source';
 import { PipelineDestination } from './pipeline.destination';
 import { PipelineJob, PipelineJobFrom, PipelineJobTo } from './pipeline.job';
@@ -8,6 +8,8 @@ import { BoligPortalWebcrawler } from './webcrawler/bolig-portal/bolig-portal.we
 
 @Injectable()
 export class PipelineService {
+  private readonly logger = new Logger(PipelineService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly fileService: FileService,
@@ -26,6 +28,9 @@ export class PipelineService {
   }
 
   private begin(executionId: string) {
+    this.logger.debug(
+      'Started pipeline for job with execution ID: ' + executionId,
+    );
     return this.prisma.execution.update({
       where: {
         id: executionId,
@@ -37,6 +42,9 @@ export class PipelineService {
   }
 
   private finish(executionId: string) {
+    this.logger.debug(
+      'Finished pipeline for job with execution ID: ' + executionId,
+    );
     return this.prisma.execution.update({
       where: {
         id: executionId,

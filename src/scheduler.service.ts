@@ -14,18 +14,21 @@ export class SchedulerService {
     private readonly pipelineService: PipelineService,
   ) {}
 
-  @Cron('* * */2 * * *')
+  @Cron('*/30 * * * * *')
   async run() {
+    this.logger.log('Reading job queue');
     const jobs = await this.getAllJobs();
 
     for (const job of jobs) {
       const shouldRunJob = await this.shouldRunJob(job);
       if (shouldRunJob) {
         const { id } = await this.schedule(job.id);
+        this.logger.debug('Scheduled job with execution ID: ' + id);
 
         try {
           await this.runJob(id, job);
         } catch (e) {
+          this.logger.error('Job with ID: ' + id + ' crashed!');
           await this.error(id, e.message ?? null);
         }
       }

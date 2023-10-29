@@ -3,13 +3,14 @@ import { WebCrawlerJob } from '../../pipeline.job';
 import { Page } from 'puppeteer';
 import { BoligPortalPageReader } from './bolig-portal.page.reader';
 import { HousingEntry } from 'src/housing/housing.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { delay } from 'src/util/delay';
 import { PuppeteerService } from '../puppeteer.service';
 import { PipelineSource } from 'src/pipeline/pipeline.source';
 
 @Injectable()
 export class BoligPortalWebcrawler implements PipelineSource {
+  private readonly logger = new Logger(BoligPortalWebcrawler.name);
   private readonly baseUrl = 'https://www.boligportal.dk';
   private readonly pageReader = new BoligPortalPageReader();
 
@@ -41,6 +42,12 @@ export class BoligPortalWebcrawler implements PipelineSource {
             try {
               housingData = await this.pageReader.read(page);
             } catch (e) {
+              const id = url.split('-').pop() ?? 'no-page';
+              page.screenshot({
+                captureBeyondViewport: true,
+                fullPage: true,
+                path: `reading-page-${id}.jpg`,
+              });
               console.error(e);
             }
 
@@ -58,22 +65,32 @@ export class BoligPortalWebcrawler implements PipelineSource {
     message: WebCrawlerJob,
   ): AsyncIterable<string> {
     const page = await this.createPage();
+    try {
+      await page.goto(this.baseUrl + message.webcrawler.startUri);
+      await this.acceptCookies(page);
 
-    await page.goto(this.baseUrl + message.webcrawler.startUri);
-    await this.acceptCookies(page);
+      let pageNumber = 1;
+      while (true) {
+        this.logger.debug('Reading bolig portal page ' + pageNumber++);
 
-    while (true) {
-      const urls = await this.getAllListingUrlsOnPage(page);
+        const urls = await this.getAllListingUrlsOnPage(page);
 
-      yield* urls;
+        yield* urls;
 
-      await delay(1000);
-      const hasNavigated = await this.gotoNextPage(page);
-      console.log(hasNavigated);
+        await delay(1000);
+        const hasNavigated = await this.gotoNextPage(page);
 
-      if (!hasNavigated) {
-        break;
+        if (!hasNavigated) {
+          break;
+        }
       }
+    } catch (e) {
+      page.screenshot({
+        captureBeyondViewport: true,
+        fullPage: true,
+        path: 'reading-urls.jpg',
+      });
+      throw e;
     }
 
     await page.close();

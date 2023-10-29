@@ -7,12 +7,15 @@ export class BoligPortalPageReader {
     '#app > div.css-1lmu4mj > div:nth-child(5) > div.css-tuhgbu > div.css-ysv6ho > div.css-1jf5j4m > div.css-11rix5h > section:nth-child(1) > div.css-15kk0v4';
   private readonly rentalDetailsSelector =
     '#app > div.css-1lmu4mj > div:nth-child(5) > div.css-tuhgbu > div.css-ysv6ho > div.css-1jf5j4m > div.css-11rix5h > section:nth-child(2) > div.css-15kk0v4';
+  private readonly addressSelector =
+    '#app > div.css-1lmu4mj > div:nth-child(5) > div.css-tuhgbu > div.css-ysv6ho > div.css-tfjtmt > span > div';
 
   private readonly boligPortalTableReader = new BoligPortalTableReader();
 
   async read(page: Page): Promise<HousingEntry> {
     const url = page.url();
     const monthlyRent = await this.readMonthlyRent(page);
+    const address = await this.readStringAtSelector(page, this.addressSelector);
 
     const data = await this.boligPortalTableReader.read(
       page,
@@ -27,6 +30,7 @@ export class BoligPortalPageReader {
     return {
       url,
       monthlyRent,
+      address,
       ...data,
       ...data2,
     } as HousingEntry;

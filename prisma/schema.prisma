@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobType {
+  Pipeline
+  Enrich
+}
+
+model Job {
+  id         String  @id @default(uuid())
+  type       JobType
+  definition Json
+  interval   String
+  stopped    Boolean
+
+  created_at DateTime  @default(now())
+  deleted_at DateTime?
+
+  executions Execution[]
+}
+
+enum Status {
+  Scheduled
+  Running
+  Finished
+  Crashed
+}
+
+model Execution {
+  id     String  @id @default(uuid())
+  status Status
+  data   String?
+
+  started_at DateTime  @default(now())
+  stopped_at DateTime?
+
+  job    Job    @relation(fields: [job_id], references: [id])
+  job_id String
+}

@@ -94,9 +94,6 @@ export class BoligPortalWebcrawler implements PipelineSource {
     }
 
     await page.close();
-
-    const browser = await this.puppeteerService.get();
-    await browser.close();
   }
 
   private async createPage() {

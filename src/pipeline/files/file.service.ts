@@ -37,9 +37,14 @@ class JsonTransform extends Transform {
 
 @Injectable()
 export class FileService implements PipelineDestination, PipelineSource {
+  filename(name: string): string {
+    return name.replace('{datetime}', new Date().toISOString());
+  }
+
   async pipe(stream: Readable, to: FileJob): Promise<void> {
     const jsonTransform = new JsonTransform();
-    await pipeline(stream, jsonTransform, createWriteStream(to.file));
+    const filename = this.filename(to.file);
+    await pipeline(stream, jsonTransform, createWriteStream(filename));
   }
 
   get(from: FileJob): Readable {

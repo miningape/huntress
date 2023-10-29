@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import puppeteer, { Browser } from 'puppeteer';
 
 @Injectable()
-export class PuppeteerService {
+export class PuppeteerService implements OnModuleDestroy {
   private browser: Browser | null = null;
 
   async get() {
@@ -11,5 +11,10 @@ export class PuppeteerService {
     }
 
     return this.browser;
+  }
+
+  async onModuleDestroy() {
+    const browser = await this.get();
+    browser.close();
   }
 }

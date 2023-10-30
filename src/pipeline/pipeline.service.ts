@@ -24,8 +24,8 @@ export class PipelineService {
     const source = this.getSource(pipelineJob.from);
     const destination = this.getDestination(pipelineJob.to);
 
-    const stream = source.get(pipelineJob.from);
-    await destination.pipe(stream, pipelineJob.to);
+    const stream = source.get(pipelineJob.from, executionId);
+    await destination.pipe(stream, pipelineJob.to, executionId);
     await this.finish(executionId);
   }
 

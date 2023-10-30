@@ -45,6 +45,8 @@ model Execution {
 
   job    Job    @relation(fields: [job_id], references: [id])
   job_id String
+
+  seen_bolig_portal_listings BoligPortalListing[]
 }
 
 model Listing {
@@ -82,6 +84,9 @@ model BoligPortalListing {
   id          String @id @default(uuid())
   case_number String @unique
   url         String
+
+  last_seen_on_execution    Execution @relation(fields: [last_seen_on_execution_id], references: [id])
+  last_seen_on_execution_id String
 
   listing Listing[]
 }

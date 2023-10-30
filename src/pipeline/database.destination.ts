@@ -8,10 +8,10 @@ import { ListingService } from 'src/listing/listing.service';
 export class DatabaseDestination implements PipelineDestination {
   constructor(private readonly listingService: ListingService) {}
 
-  pipe(stream: Readable, to: DatabaseJob): Promise<void> {
+  pipe(stream: Readable, to: DatabaseJob, executionId: string): Promise<void> {
     if ('table' in to.database) {
       if (to.database.table === 'Listing') {
-        return this.listingService.pipe(stream);
+        return this.listingService.pipe(stream, to, executionId);
       }
     }
 

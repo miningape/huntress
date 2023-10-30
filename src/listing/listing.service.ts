@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HousingEntry } from 'src/housing/housing.entity';
 import { PipelineDestination } from 'src/pipeline/pipeline.destination';
+import { PipelineJobTo } from 'src/pipeline/pipeline.job';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Readable } from 'stream';
 
@@ -8,7 +9,11 @@ import { Readable } from 'stream';
 export class ListingService implements PipelineDestination {
   constructor(private readonly prisma: PrismaService) {}
 
-  async pipe(stream: Readable): Promise<void> {
+  async pipe(
+    stream: Readable,
+    _: PipelineJobTo,
+    executionId: string,
+  ): Promise<void> {
     for await (const item of stream) {
       const result = HousingEntry.safeParse(item);
 
@@ -51,6 +56,11 @@ export class ListingService implements PipelineDestination {
           data: {
             case_number,
             url,
+            last_seen_on_execution: {
+              connect: {
+                id: executionId,
+              },
+            },
             listing: {
               create: {
                 address,
@@ -85,6 +95,11 @@ export class ListingService implements PipelineDestination {
         },
         data: {
           url,
+          last_seen_on_execution: {
+            connect: {
+              id: executionId,
+            },
+          },
           listing: {
             updateMany: {
               where: {

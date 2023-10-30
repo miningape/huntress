@@ -13,9 +13,16 @@ export class PuppeteerService implements OnModuleDestroy {
     return this.browser;
   }
 
+  async close() {
+    this.onModuleDestroy();
+  }
+
   async onModuleDestroy() {
-    const browser = await this.get();
-    await browser.close();
+    if (this.browser === null) {
+      return;
+    }
+
+    await this.browser.close();
     this.browser = null;
   }
 }

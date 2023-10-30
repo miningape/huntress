@@ -5,6 +5,7 @@ import { PipelineJob, PipelineJobFrom, PipelineJobTo } from './pipeline.job';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FileService } from './files/file.service';
 import { BoligPortalWebcrawler } from './webcrawler/bolig-portal/bolig-portal.webcrawler';
+import { DatabaseDestination } from './database.destination';
 
 @Injectable()
 export class PipelineService {
@@ -14,6 +15,7 @@ export class PipelineService {
     private readonly prisma: PrismaService,
     private readonly fileService: FileService,
     private readonly boligPortalWebCrawler: BoligPortalWebcrawler,
+    private readonly databaseDestination: DatabaseDestination,
   ) {}
 
   async pipe(executionId: string, job: any) {
@@ -34,6 +36,7 @@ export class PipelineService {
     return this.prisma.execution.update({
       where: {
         id: executionId,
+        status: 'Scheduled',
       },
       data: {
         status: 'Running',
@@ -71,6 +74,10 @@ export class PipelineService {
   private getDestination(destination: PipelineJobTo): PipelineDestination {
     if ('file' in destination) {
       return this.fileService;
+    }
+
+    if ('database' in destination) {
+      return this.databaseDestination;
     }
 
     throw new Error('Could not find destination');

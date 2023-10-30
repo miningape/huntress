@@ -29,10 +29,10 @@ export class BoligPortalPageReader {
 
     return {
       url,
-      monthlyRent,
       address,
       ...data,
       ...data2,
+      monthlyRent,
     } as HousingEntry;
   }
 

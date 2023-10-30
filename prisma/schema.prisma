@@ -46,3 +46,42 @@ model Execution {
   job    Job    @relation(fields: [job_id], references: [id])
   job_id String
 }
+
+model Listing {
+  id         String    @id @default(uuid())
+  created_at DateTime  @default(now())
+  updated_at DateTime?
+  deleted_at DateTime?
+
+  address String
+
+  size           String
+  type           String
+  rooms          String
+  floor          String
+  furnished      String
+  petsAllowed    String
+  balcony        String
+  washingMachine String
+  dishwasher     String
+  elevator       String
+
+  monthlyRent   Float
+  Aconto        String?
+  deposit       String
+  prepaidRent   String?
+  moveInPrice   String
+  availableFrom String
+  rentalPeriod  String
+
+  bolig_portal_listing    BoligPortalListing? @relation(fields: [bolig_portal_listing_id], references: [id])
+  bolig_portal_listing_id String?
+}
+
+model BoligPortalListing {
+  id          String @id @default(uuid())
+  case_number String @unique
+  url         String
+
+  listing Listing[]
+}

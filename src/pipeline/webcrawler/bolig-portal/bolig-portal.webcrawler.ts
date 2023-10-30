@@ -43,12 +43,13 @@ export class BoligPortalWebcrawler implements PipelineSource {
               housingData = await this.pageReader.read(page);
             } catch (e) {
               const id = url.split('-').pop() ?? 'no-page';
-              page.screenshot({
+              await page.screenshot({
                 captureBeyondViewport: true,
                 fullPage: true,
                 path: `reading-page-${id}.jpg`,
               });
               console.error(e);
+              this.logger.error('Error reading page: ' + url + ',  skipping!');
             }
 
             await page.close();
@@ -85,15 +86,16 @@ export class BoligPortalWebcrawler implements PipelineSource {
         }
       }
     } catch (e) {
-      page.screenshot({
+      await page.screenshot({
         captureBeyondViewport: true,
         fullPage: true,
         path: 'reading-urls.jpg',
       });
       throw e;
+    } finally {
+      await page.close();
+      await this.puppeteerService.close();
     }
-
-    await page.close();
   }
 
   private async createPage() {

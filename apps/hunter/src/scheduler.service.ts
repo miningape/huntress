@@ -72,7 +72,24 @@ export class SchedulerService {
     });
   }
 
+  private async forceRun(job: Job) {
+    await this.prisma.job.update({
+      where: {
+        id: job.id,
+      },
+      data: {
+        force_run: false,
+      },
+    });
+
+    return true;
+  }
+
   private async shouldRunJob(job: Job & { executions: Execution[] }) {
+    if (job.force_run) {
+      return this.forceRun(job);
+    }
+
     const lastRun: Execution | undefined = job.executions[0];
 
     if (lastRun === undefined) {
@@ -134,7 +151,7 @@ export class SchedulerService {
     return this.prisma.job.findMany({
       where: {
         deleted_at: null,
-        stopped: false,
+        OR: [{ stopped: false }, { force_run: true }],
       },
       include: {
         executions: {

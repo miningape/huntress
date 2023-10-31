@@ -21,6 +21,7 @@ model Job {
   definition Json
   interval   String
   stopped    Boolean
+  force_run  Boolean
 
   created_at DateTime  @default(now())
   deleted_at DateTime?

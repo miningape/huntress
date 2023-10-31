@@ -9,6 +9,7 @@ async function seed() {
       definition: {},
       interval: '* 2 * * * *',
       stopped: false,
+      force_run: false,
     },
   });
 }

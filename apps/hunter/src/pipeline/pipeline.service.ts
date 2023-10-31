@@ -2,10 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PipelineSource } from './pipeline.source';
 import { PipelineDestination } from './pipeline.destination';
 import { PipelineJob, PipelineJobFrom, PipelineJobTo } from './pipeline.job';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { FileService } from './files/file.service';
 import { BoligPortalWebcrawler } from './webcrawler/bolig-portal/bolig-portal.webcrawler';
 import { DatabaseDestination } from './database.destination';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PipelineService {

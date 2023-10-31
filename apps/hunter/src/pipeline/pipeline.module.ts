@@ -3,8 +3,8 @@ import { PipelineService } from './pipeline.service';
 import { FileService } from './files/file.service';
 import { BoligPortalWebcrawler } from './webcrawler/bolig-portal/bolig-portal.webcrawler';
 import { PuppeteerService } from './webcrawler/puppeteer.service';
-import { ListingService } from 'src/listing/listing.service';
 import { DatabaseDestination } from './database.destination';
+import { ListingService } from '../listing/listing.service';
 
 @Module({
   providers: [

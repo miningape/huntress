@@ -1,8 +1,32 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/hunter/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/hunter/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/hunter",
+  "projects": {
+    "hunter": {
+      "type": "application",
+      "root": "apps/hunter",
+      "entryFile": "main",
+      "sourceRoot": "apps/hunter/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/hunter/tsconfig.app.json"
+      }
+    },
+    "pipeline-worker": {
+      "type": "application",
+      "root": "apps/pipeline-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/pipeline-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/pipeline-worker/tsconfig.app.json"
+      }
+    }
   }
 }

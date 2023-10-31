@@ -2,11 +2,11 @@ import { Readable } from 'stream';
 import { WebCrawlerJob } from '../../pipeline.job';
 import { Page } from 'puppeteer';
 import { BoligPortalPageReader } from './bolig-portal.page.reader';
-import { HousingEntry } from 'src/housing/housing.entity';
 import { Injectable, Logger } from '@nestjs/common';
-import { delay } from 'src/util/delay';
 import { PuppeteerService } from '../puppeteer.service';
-import { PipelineSource } from 'src/pipeline/pipeline.source';
+import { PipelineSource } from '../../pipeline.source';
+import { HousingEntry } from 'apps/hunter/src/housing/housing.entity';
+import { delay } from 'apps/hunter/src/util/delay';
 
 @Injectable()
 export class BoligPortalWebcrawler implements PipelineSource {
@@ -86,6 +86,7 @@ export class BoligPortalWebcrawler implements PipelineSource {
         }
       }
     } catch (e) {
+      this.logger.error('Error while reading listing URLs');
       await page.screenshot({
         captureBeyondViewport: true,
         fullPage: true,

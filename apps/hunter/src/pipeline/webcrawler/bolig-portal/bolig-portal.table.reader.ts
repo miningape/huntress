@@ -1,5 +1,5 @@
+import { HousingEntry } from 'apps/hunter/src/housing/housing.entity';
 import { Page } from 'puppeteer';
-import { HousingEntry } from 'src/housing/housing.entity';
 
 export class BoligPortalTableReader {
   async read(

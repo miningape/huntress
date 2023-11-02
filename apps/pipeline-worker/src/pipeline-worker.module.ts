@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { PipelineWorkerController } from './pipeline-worker.controller';
 import { PipelineWorkerService } from './pipeline-worker.service';
+import { HelperModule } from '@app/helper';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PipelineModule } from './pipeline/pipeline.module';
 
 @Module({
-  imports: [],
-  controllers: [PipelineWorkerController],
+  imports: [ScheduleModule.forRoot(), HelperModule, PipelineModule],
   providers: [PipelineWorkerService],
 })
 export class PipelineWorkerModule {}

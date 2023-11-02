@@ -1,12 +1,12 @@
 import { Readable } from 'stream';
-import { WebCrawlerJob } from '../../pipeline.job';
 import { Page } from 'puppeteer';
 import { BoligPortalPageReader } from './bolig-portal.page.reader';
 import { Injectable, Logger } from '@nestjs/common';
 import { PuppeteerService } from '../puppeteer.service';
 import { PipelineSource } from '../../pipeline.source';
-import { HousingEntry } from 'apps/hunter/src/housing/housing.entity';
-import { delay } from 'apps/hunter/src/util/delay';
+import { HousingEntry } from '@app/helper/housing/housing.entity';
+import { delay } from '@app/helper/util/delay';
+import { WebCrawlerJob } from '@app/helper/pipeline/pipeline.job';
 
 @Injectable()
 export class BoligPortalWebcrawler implements PipelineSource {

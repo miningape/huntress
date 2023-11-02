@@ -3,8 +3,8 @@ import { PipelineSource } from '../pipeline.source';
 import { PipelineDestination } from '../pipeline.destination';
 import { Readable, Transform, TransformCallback } from 'stream';
 import { pipeline } from 'stream/promises';
-import { FileJob } from '../pipeline.job';
 import { createReadStream, createWriteStream } from 'fs';
+import { FileJob } from '@app/helper/pipeline/pipeline.job';
 
 class JsonTransform extends Transform {
   private lastChunk: string | null = null;

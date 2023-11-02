@@ -12,7 +12,7 @@ datasource db {
 
 enum JobType {
   Pipeline
-  Enrich
+  Marialise
 }
 
 model Job {

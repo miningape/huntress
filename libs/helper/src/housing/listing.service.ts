@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Readable } from 'stream';
-import { HousingEntry } from '../housing/housing.entity';
-import { PipelineDestination } from '../pipeline/pipeline.destination';
-import { PrismaService } from '../prisma/prisma.service';
-import { PipelineJobTo } from '../pipeline/pipeline.job';
+import { HousingEntry } from './housing.entity';
+import { PipelineDestination } from '../../../../apps/pipeline-worker/src/pipeline/pipeline.destination';
+import { PrismaService } from '../global/prisma.service';
+import { PipelineJobTo } from '@app/helper/pipeline/pipeline.job';
 
 @Injectable()
 export class ListingService implements PipelineDestination {

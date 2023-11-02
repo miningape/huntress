@@ -1,26 +1,29 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PipelineSource } from './pipeline.source';
 import { PipelineDestination } from './pipeline.destination';
-import { PipelineJob, PipelineJobFrom, PipelineJobTo } from './pipeline.job';
 import { FileService } from './files/file.service';
 import { BoligPortalWebcrawler } from './webcrawler/bolig-portal/bolig-portal.webcrawler';
 import { DatabaseDestination } from './database.destination';
-import { PrismaService } from '../prisma/prisma.service';
+import {
+  PipelineJobTo,
+  PipelineJob,
+  PipelineJobFrom,
+} from '@app/helper/pipeline/pipeline.job';
+import { ExecutionService } from '@app/helper/execution.service';
 
 @Injectable()
 export class PipelineService {
   private readonly logger = new Logger(PipelineService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
     private readonly fileService: FileService,
-    private readonly boligPortalWebCrawler: BoligPortalWebcrawler,
+    private readonly executionService: ExecutionService,
     private readonly databaseDestination: DatabaseDestination,
+    private readonly boligPortalWebCrawler: BoligPortalWebcrawler,
   ) {}
 
-  async pipe(executionId: string, job: any) {
+  async pipe(executionId: string, pipelineJob: PipelineJob) {
     await this.begin(executionId);
-    const pipelineJob = PipelineJob.parse(job);
     const source = this.getSource(pipelineJob.from);
     const destination = this.getDestination(pipelineJob.to);
 
@@ -33,30 +36,14 @@ export class PipelineService {
     this.logger.debug(
       'Started pipeline for job with execution ID: ' + executionId,
     );
-    return this.prisma.execution.update({
-      where: {
-        id: executionId,
-        status: 'Scheduled',
-      },
-      data: {
-        status: 'Running',
-      },
-    });
+    return this.executionService.begin(executionId);
   }
 
   private finish(executionId: string) {
     this.logger.debug(
       'Finished pipeline for job with execution ID: ' + executionId,
     );
-    return this.prisma.execution.update({
-      where: {
-        id: executionId,
-      },
-      data: {
-        status: 'Finished',
-        stopped_at: new Date(),
-      },
-    });
+    return this.executionService.finish(executionId);
   }
 
   private getSource(source: PipelineJobFrom): PipelineSource {

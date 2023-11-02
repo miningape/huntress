@@ -8,6 +8,6 @@ async function bootstrap() {
   // const scheduler = app.get(SchedulerService);
   // await scheduler.run();
 
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();

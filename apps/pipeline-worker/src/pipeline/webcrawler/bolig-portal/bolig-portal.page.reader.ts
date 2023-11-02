@@ -1,6 +1,6 @@
 import { Page } from 'puppeteer';
 import { BoligPortalTableReader } from './bolig-portal.table.reader';
-import { HousingEntry } from 'apps/hunter/src/housing/housing.entity';
+import { HousingEntry } from '@app/helper/housing/housing.entity';
 
 export class BoligPortalPageReader {
   private readonly housingDetailsSelector =

@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { PrismaService } from './prisma/prisma.service';
-import { PipelineService } from './pipeline/pipeline.service';
 import * as cron from '@datasert/cronjs-matcher';
 import { Execution, Job } from '@prisma/client';
+import { ExecutionService } from '@app/helper/execution.service';
+import { PipelineJobQueueService } from '@app/helper/pipeline/pipeline-job.queue.service';
+import { PrismaService } from '@app/helper/global/prisma.service';
 
 @Injectable()
 export class SchedulerService {
@@ -11,7 +12,8 @@ export class SchedulerService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly pipelineService: PipelineService,
+    private readonly pipelineJobQueue: PipelineJobQueueService,
+    private readonly executionService: ExecutionService,
   ) {}
 
   @Cron('*/30 * * * * *')
@@ -22,14 +24,15 @@ export class SchedulerService {
     for (const job of jobs) {
       const shouldRunJob = await this.shouldRunJob(job);
       if (shouldRunJob) {
-        const { id } = await this.schedule(job.id);
-        this.logger.debug('Scheduled job with execution ID: ' + id);
+        const { id } = await this.executionService.schedule(job.id);
 
         try {
           await this.runJob(id, job);
         } catch (e) {
-          this.logger.error('Job with ID: ' + id + ' crashed!');
-          await this.error(id, e.message ?? null);
+          this.logger.error(
+            'Job with ID: ' + id + ' crashed while scheduling!',
+          );
+          await this.executionService.error(id, e.message ?? null);
         }
       }
     }
@@ -38,7 +41,7 @@ export class SchedulerService {
   private async runJob(executionId: string, job: Job) {
     switch (job.type) {
       case 'Pipeline': {
-        await this.pipelineService.pipe(executionId, job.definition);
+        await this.pipelineJobQueue.push(executionId, job.definition);
         break;
       }
       default:
@@ -46,43 +49,21 @@ export class SchedulerService {
     }
   }
 
-  private error(executionId: string, errorMessage: string | null) {
-    return this.prisma.execution.update({
+  private getAllJobs() {
+    return this.prisma.job.findMany({
       where: {
-        id: executionId,
+        deleted_at: null,
+        OR: [{ stopped: false }, { force_run: true }],
       },
-      data: {
-        status: 'Crashed',
-        data: errorMessage,
-        stopped_at: new Date(),
-      },
-    });
-  }
-
-  private schedule(jobId: string) {
-    return this.prisma.execution.create({
-      data: {
-        status: 'Scheduled',
-        job: {
-          connect: {
-            id: jobId,
+      include: {
+        executions: {
+          take: 3,
+          orderBy: {
+            started_at: 'desc',
           },
         },
       },
     });
-  }
-
-  private async forceRun(job: Job) {
-    await this.prisma.job.update({
-      where: {
-        id: job.id,
-      },
-      data: {
-        force_run: false,
-      },
-    });
-
-    return true;
   }
 
   private async shouldRunJob(job: Job & { executions: Execution[] }) {
@@ -121,7 +102,10 @@ export class SchedulerService {
       hasSeconds: true,
     });
 
-    return futureTimes.length > 0;
+    return (
+      futureTimes.filter((time) => time != lastRun.started_at.toISOString())
+        .length > 0
+    );
   }
 
   private async checkCrashStatus(job: Job & { executions: Execution[] }) {
@@ -147,20 +131,16 @@ export class SchedulerService {
     return false;
   }
 
-  private getAllJobs() {
-    return this.prisma.job.findMany({
+  private async forceRun(job: Job) {
+    await this.prisma.job.update({
       where: {
-        deleted_at: null,
-        OR: [{ stopped: false }, { force_run: true }],
+        id: job.id,
       },
-      include: {
-        executions: {
-          take: 3,
-          orderBy: {
-            started_at: 'desc',
-          },
-        },
+      data: {
+        force_run: false,
       },
     });
+
+    return true;
   }
 }

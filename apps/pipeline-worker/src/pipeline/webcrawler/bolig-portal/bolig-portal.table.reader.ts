@@ -1,4 +1,4 @@
-import { HousingEntry } from 'apps/hunter/src/housing/housing.entity';
+import { HousingEntry } from '@app/helper/housing/housing.entity';
 import { Page } from 'puppeteer';
 
 export class BoligPortalTableReader {

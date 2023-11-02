@@ -4,15 +4,15 @@ import { FileService } from './files/file.service';
 import { BoligPortalWebcrawler } from './webcrawler/bolig-portal/bolig-portal.webcrawler';
 import { PuppeteerService } from './webcrawler/puppeteer.service';
 import { DatabaseDestination } from './database.destination';
-import { ListingService } from '../listing/listing.service';
+import { HelperModule } from '@app/helper';
 
 @Module({
+  imports: [HelperModule],
   providers: [
     PipelineService,
     FileService,
     BoligPortalWebcrawler,
     PuppeteerService,
-    ListingService,
     DatabaseDestination,
   ],
   exports: [PipelineService],

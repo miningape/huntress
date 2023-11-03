@@ -4,7 +4,7 @@ import { PipelineDestination } from '../pipeline.destination';
 import { Readable, Transform, TransformCallback } from 'stream';
 import { pipeline } from 'stream/promises';
 import { createReadStream, createWriteStream } from 'fs';
-import { FileJob } from '@app/helper/pipeline/pipeline.job';
+import { FileJob } from '@app/helper/job/pipeline.job';
 
 class JsonTransform extends Transform {
   private lastChunk: string | null = null;
@@ -37,7 +37,7 @@ class JsonTransform extends Transform {
 
 @Injectable()
 export class FileService implements PipelineDestination, PipelineSource {
-  filename(name: string): string {
+  private filename(name: string): string {
     return name.replace('{datetime}', new Date().toISOString());
   }
 

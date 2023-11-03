@@ -1,5 +1,5 @@
 import { ExecutionService } from '@app/helper/execution.service';
-import { PipelineJobQueueService } from '@app/helper/pipeline/pipeline-job.queue.service';
+import { PipelineQueueService } from '@app/helper/queue/pipeline.queue.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PipelineService } from 'apps/pipeline-worker/src/pipeline/pipeline.service';
@@ -10,7 +10,7 @@ export class PipelineWorkerService {
   constructor(
     private readonly pipelineService: PipelineService,
     private readonly executionService: ExecutionService,
-    private readonly pipelineJobQueue: PipelineJobQueueService,
+    private readonly pipelineJobQueue: PipelineQueueService,
   ) {}
 
   @Cron('*/15 * * * * *')
@@ -27,7 +27,7 @@ export class PipelineWorkerService {
       await this.pipelineService.pipe(job.executionId, job.definition);
     } catch (e: any) {
       this.logger.error(
-        'Job with ID: ' + job.executionId + ' crashed while scheduling!',
+        'Job with ID: ' + job.executionId + ' crashed while piping!',
       );
       await this.executionService.error(job.executionId, e.message ?? null);
     }

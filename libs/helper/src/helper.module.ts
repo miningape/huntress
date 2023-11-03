@@ -1,12 +1,23 @@
 import { Module } from '@nestjs/common';
 import { GlobalModule } from './global/global.module';
-import { PipelineJobQueueService } from './pipeline/pipeline-job.queue.service';
+import { PipelineQueueService } from './queue/pipeline.queue.service';
 import { ExecutionService } from './execution.service';
 import { ListingService } from './housing/listing.service';
+import { MaterialiseQueueService } from './queue/meterialise.queue.service';
 
 @Module({
   imports: [GlobalModule],
-  providers: [PipelineJobQueueService, ExecutionService, ListingService],
-  exports: [PipelineJobQueueService, ExecutionService, ListingService],
+  providers: [
+    PipelineQueueService,
+    MaterialiseQueueService,
+    ExecutionService,
+    ListingService,
+  ],
+  exports: [
+    PipelineQueueService,
+    MaterialiseQueueService,
+    ExecutionService,
+    ListingService,
+  ],
 })
 export class HelperModule {}

@@ -3,7 +3,7 @@ import { Readable } from 'stream';
 import { HousingEntry } from './housing.entity';
 import { PipelineDestination } from '../../../../apps/pipeline-worker/src/pipeline/pipeline.destination';
 import { PrismaService } from '../global/prisma.service';
-import { PipelineJobTo } from '@app/helper/pipeline/pipeline.job';
+import { PipelineJobTo } from '@app/helper/job/pipeline.job';
 
 @Injectable()
 export class ListingService implements PipelineDestination {

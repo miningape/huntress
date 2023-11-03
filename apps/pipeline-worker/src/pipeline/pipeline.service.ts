@@ -8,7 +8,7 @@ import {
   PipelineJobTo,
   PipelineJob,
   PipelineJobFrom,
-} from '@app/helper/pipeline/pipeline.job';
+} from '@app/helper/job/pipeline.job';
 import { ExecutionService } from '@app/helper/execution.service';
 
 @Injectable()

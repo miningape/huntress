@@ -6,6 +6,13 @@
       "request": "launch",
       "command": "pnpm run start:debug pipeline-worker",
       "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "Run Script: start materialise-worker",
+      "request": "launch",
+      "command": "pnpm run start:debug materialise-worker",
+      "cwd": "${workspaceFolder}"
     }
   ]
 }

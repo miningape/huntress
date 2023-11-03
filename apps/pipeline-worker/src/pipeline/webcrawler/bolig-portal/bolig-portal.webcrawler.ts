@@ -6,7 +6,7 @@ import { PuppeteerService } from '../puppeteer.service';
 import { PipelineSource } from '../../pipeline.source';
 import { HousingEntry } from '@app/helper/housing/housing.entity';
 import { delay } from '@app/helper/util/delay';
-import { WebCrawlerJob } from '@app/helper/pipeline/pipeline.job';
+import { WebCrawlerJob } from '@app/helper/job/pipeline.job';
 
 @Injectable()
 export class BoligPortalWebcrawler implements PipelineSource {
@@ -36,10 +36,10 @@ export class BoligPortalWebcrawler implements PipelineSource {
         yield* await Promise.all(
           urls.map(async (url) => {
             const page = await this.createPage();
-            await page.goto(url);
 
             let housingData = null;
             try {
+              await page.goto(url);
               housingData = await this.pageReader.read(page);
             } catch (e) {
               const id = url.split('-').pop() ?? 'no-page';

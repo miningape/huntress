@@ -36,6 +36,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/helper/tsconfig.lib.json"
       }
+    },
+    "materialise-worker": {
+      "type": "application",
+      "root": "apps/materialise-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/materialise-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/materialise-worker/tsconfig.app.json"
+      }
     }
   }
 }

@@ -9,8 +9,8 @@ export class RedisService {
     this.redis = new Redis();
   }
 
-  push(key: string, value: any) {
-    return this.redis.rpush(key, JSON.stringify(value));
+  push(key: string, value: string) {
+    return this.redis.rpush(key, value);
   }
 
   dequeue(key: string): Promise<string | null> {

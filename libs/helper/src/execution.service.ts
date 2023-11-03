@@ -46,6 +46,19 @@ export class ExecutionService {
     });
   }
 
+  finishWithData(executionId: string, data: string) {
+    return this.prisma.execution.update({
+      where: {
+        id: executionId,
+      },
+      data: {
+        status: 'Finished',
+        stopped_at: new Date(),
+        data,
+      },
+    });
+  }
+
   error(id: string, errorMessage: string | null) {
     this.logger.error('Job crashed with execution ID: ' + id);
     return this.prisma.execution.update({

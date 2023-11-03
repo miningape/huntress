@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PipelineDestination } from './pipeline.destination';
 import { Readable } from 'stream';
 import { ListingService } from '../../../../libs/helper/src/housing/listing.service';
-import { DatabaseJob } from '@app/helper/pipeline/pipeline.job';
+import { DatabaseJob } from '@app/helper/job/pipeline.job';
 
 @Injectable()
 export class DatabaseDestination implements PipelineDestination {

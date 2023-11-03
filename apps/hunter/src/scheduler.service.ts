@@ -3,8 +3,9 @@ import { Cron } from '@nestjs/schedule';
 import * as cron from '@datasert/cronjs-matcher';
 import { Execution, Job } from '@prisma/client';
 import { ExecutionService } from '@app/helper/execution.service';
-import { PipelineJobQueueService } from '@app/helper/pipeline/pipeline-job.queue.service';
+import { PipelineQueueService } from '@app/helper/queue/pipeline.queue.service';
 import { PrismaService } from '@app/helper/global/prisma.service';
+import { MaterialiseQueueService } from '@app/helper/queue/meterialise.queue.service';
 
 @Injectable()
 export class SchedulerService {
@@ -12,8 +13,9 @@ export class SchedulerService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly pipelineJobQueue: PipelineJobQueueService,
     private readonly executionService: ExecutionService,
+    private readonly pipelineJobQueue: PipelineQueueService,
+    private readonly materialiseJobQueue: MaterialiseQueueService,
   ) {}
 
   @Cron('*/30 * * * * *')
@@ -42,6 +44,10 @@ export class SchedulerService {
     switch (job.type) {
       case 'Pipeline': {
         await this.pipelineJobQueue.push(executionId, job.definition);
+        break;
+      }
+      case 'Materialise': {
+        await this.materialiseJobQueue.push(executionId, job.definition);
         break;
       }
       default:

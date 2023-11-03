@@ -1,4 +1,4 @@
-import { PipelineJobFrom } from '@app/helper/pipeline/pipeline.job';
+import { PipelineJobFrom } from '@app/helper/job/pipeline.job';
 import { Readable } from 'stream';
 
 export abstract class PipelineSource {

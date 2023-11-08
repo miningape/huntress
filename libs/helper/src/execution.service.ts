@@ -10,12 +10,24 @@ export class ExecutionService {
     this.logger.debug('Scheduling a job with ID: ' + jobId);
     return this.prisma.execution.create({
       data: {
-        status: 'Scheduled',
+        status: 'Scheduling',
         job: {
           connect: {
             id: jobId,
           },
         },
+      },
+    });
+  }
+
+  scheduled(executionId: string) {
+    this.logger.debug('Scheduled an execution with ID: ' + executionId);
+    return this.prisma.execution.update({
+      where: {
+        id: executionId,
+      },
+      data: {
+        status: 'Scheduled',
       },
     });
   }

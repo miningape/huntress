@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import * as cron from '@datasert/cronjs-matcher';
-import { Execution, Job } from '@prisma/client';
+import { Dependency, Execution, Job } from '@prisma/client';
 import { ExecutionService } from '@app/helper/execution.service';
 import { PipelineQueueService } from '@app/helper/queue/pipeline.queue.service';
 import { PrismaService } from '@app/helper/global/prisma.service';
 import { MaterialiseQueueService } from '@app/helper/queue/meterialise.queue.service';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class SchedulerService {
@@ -18,26 +19,78 @@ export class SchedulerService {
     private readonly materialiseJobQueue: MaterialiseQueueService,
   ) {}
 
-  @Cron('*/30 * * * * *')
+  @Cron('0 * * * * *')
   async run() {
     this.logger.log('Reading job queue');
     const jobs = await this.getAllJobs();
 
     for (const job of jobs) {
-      const shouldRunJob = await this.shouldRunJob(job);
-      if (shouldRunJob) {
-        const { id } = await this.executionService.schedule(job.id);
+      const shouldScheduleJob = await this.shouldScheduleJob(job);
+      if (shouldScheduleJob) {
+        await this.executionService.schedule(job.id);
+      }
+    }
 
-        try {
-          await this.runJob(id, job);
-        } catch (e) {
-          this.logger.error(
-            'Job with ID: ' + id + ' crashed while scheduling!',
-          );
-          await this.executionService.error(id, e.message ?? null);
+    const executions = await this.getAllExecutionsToRun();
+    for (const execution of executions) {
+      try {
+        const shouldRunJob = await this.shouldRunJob(execution);
+        if (shouldRunJob) {
+          await this.executionService.scheduled(execution.id);
+          await this.runJob(execution.id, execution.job);
+        }
+      } catch (e) {
+        this.logger.error(
+          'Job with execution ID: ' + execution.id + ', crashed!',
+        );
+        this.executionService.error(execution.id, e.message ?? '');
+      }
+    }
+  }
+
+  private async shouldRunJob(
+    execution: Execution & { job: Job & { depends_on: Dependency[] } },
+  ) {
+    if (execution.job.depends_on.length > 0) {
+      const baseTime = dayjs(execution.started_at);
+      for (const { depends_on_id } of execution.job.depends_on) {
+        const job = await this.getLatestExecutionForJob(depends_on_id);
+        if (
+          job.status !== 'Finished' ||
+          baseTime.isAfter(dayjs(job.started_at), 'seconds')
+        ) {
+          return false;
         }
       }
     }
+
+    return true;
+  }
+
+  private getLatestExecutionForJob(id: string) {
+    return this.prisma.execution.findFirst({
+      where: {
+        job_id: id,
+      },
+      orderBy: {
+        started_at: 'desc',
+      },
+    });
+  }
+
+  private getAllExecutionsToRun() {
+    return this.prisma.execution.findMany({
+      where: {
+        status: 'Scheduling',
+      },
+      include: {
+        job: {
+          include: {
+            depends_on: true,
+          },
+        },
+      },
+    });
   }
 
   private async runJob(executionId: string, job: Job) {
@@ -62,6 +115,7 @@ export class SchedulerService {
         OR: [{ stopped: false }, { force_run: true }],
       },
       include: {
+        depends_on: true,
         executions: {
           take: 3,
           orderBy: {
@@ -72,7 +126,7 @@ export class SchedulerService {
     });
   }
 
-  private async shouldRunJob(job: Job & { executions: Execution[] }) {
+  private async shouldScheduleJob(job: Job & { executions: Execution[] }) {
     if (job.force_run) {
       return this.forceRun(job);
     }
@@ -81,6 +135,10 @@ export class SchedulerService {
 
     if (lastRun === undefined) {
       return true;
+    }
+
+    if (lastRun.status === 'Scheduling') {
+      return false;
     }
 
     if (lastRun.status === 'Scheduled') {

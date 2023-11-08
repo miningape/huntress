@@ -95,12 +95,14 @@ export class BoligPortalWebcrawler implements PipelineSource {
       throw e;
     } finally {
       await page.close();
-      await this.puppeteerService.close();
+      await this.puppeteerService.close(PuppeteerService.KEYS.BOLIG_PORTAL);
     }
   }
 
   private async createPage() {
-    const browser = await this.puppeteerService.get();
+    const browser = await this.puppeteerService.get(
+      PuppeteerService.KEYS.BOLIG_PORTAL,
+    );
     return browser.newPage();
   }
 
@@ -112,7 +114,7 @@ export class BoligPortalWebcrawler implements PipelineSource {
 
   private async getAllListingUrlsOnPage(page: Page) {
     const listingSelector =
-      '#app > div:nth-child(2) > div:nth-child(1) > div > div > div.temporaryFlexColumnClassName.css-mom5ju > div.css-16jggh1 > div > div > div > a';
+      '#app > div:nth-child(2) > div:nth-child(1) > div > div > div:nth-child(2) > div:nth-child(9) > div > div > div > a';
     await page.waitForSelector(listingSelector);
     return await page.$$eval(listingSelector, (listingElements) =>
       listingElements.map((anchorElement) => anchorElement.href),

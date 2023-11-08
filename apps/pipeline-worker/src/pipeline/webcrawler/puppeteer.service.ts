@@ -3,26 +3,30 @@ import puppeteer, { Browser } from 'puppeteer';
 
 @Injectable()
 export class PuppeteerService implements OnModuleDestroy {
-  private browser: Browser | null = null;
+  static readonly KEYS = {
+    BOLIG_PORTAL: '@bolig-portal',
+  } as const;
 
-  async get() {
-    if (this.browser === null) {
-      this.browser = await puppeteer.launch({ headless: true });
+  private browsers: Record<string, Browser> = {};
+
+  async get(key: string) {
+    if (!(key in this.browsers)) {
+      this.browsers[key] = await puppeteer.launch({ headless: true });
     }
 
-    return this.browser;
+    return this.browsers[key];
   }
 
-  async close() {
-    this.onModuleDestroy();
+  async close(key: string) {
+    if (key in this.browsers) {
+      await this.browsers[key].close();
+      this.browsers[key] = undefined;
+    }
   }
 
   async onModuleDestroy() {
-    if (this.browser === null) {
-      return;
+    for (const browser in this.browsers) {
+      await this.close(browser);
     }
-
-    await this.browser.close();
-    this.browser = null;
   }
 }

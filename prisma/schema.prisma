@@ -23,13 +23,26 @@ model Job {
   stopped    Boolean
   force_run  Boolean
 
+  required_for Dependency[] @relation("depends_on")
+  depends_on   Dependency[] @relation("depender")
+
   created_at DateTime  @default(now())
   deleted_at DateTime?
 
   executions Execution[]
 }
 
+model Dependency {
+  depender      Job    @relation("depender", fields: [depender_id], references: [id])
+  depender_id   String
+  depends_on    Job    @relation("depends_on", fields: [depends_on_id], references: [id])
+  depends_on_id String
+
+  @@id([depender_id, depends_on_id])
+}
+
 enum Status {
+  Scheduling
   Scheduled
   Running
   Finished

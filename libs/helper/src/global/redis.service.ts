@@ -6,7 +6,7 @@ export class RedisService {
   private readonly redis: Redis;
 
   constructor() {
-    this.redis = new Redis();
+    this.redis = new Redis(process.env.REDIS_URL);
   }
 
   push(key: string, value: string) {

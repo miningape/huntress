@@ -1,0 +1,41 @@
+version: '3'
+services:
+  scheduler:
+    image: hunter-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    environment:
+      - DATABASE_URL=postgres://kyle.johnson@host.docker.internal:5432/hunter
+      - REDIS_URL=redis://redis:6379/
+    depends_on:
+      - redis
+  pipeline-worker:
+    image: hunter-app
+    command: node dist/apps/pipeline-worker/main.js
+    ports:
+      - 5001:3001
+    environment:
+      - DATABASE_URL=postgres://kyle.johnson@host.docker.internal:5432/hunter
+      - REDIS_URL=redis://redis:6379/
+    depends_on:
+      - scheduler
+      - redis
+  materialise-worker:
+    image: hunter-app
+    command: node dist/apps/materialise-worker/main.js
+    ports:
+      - 5002:3002
+    environment:
+      - DATABASE_URL=postgres://kyle.johnson@host.docker.internal:5432/hunter
+      - REDIS_URL=redis://redis:6379/
+    depends_on:
+      - scheduler
+      - redis
+  redis:
+    image: redis:7.2
+    restart: always
+    ports:
+      - 6379:6379

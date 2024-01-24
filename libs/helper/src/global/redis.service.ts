@@ -6,10 +6,10 @@ export class RedisService {
   private readonly redis: Redis;
 
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL);
+    this.redis = new Redis(process.env.REDIS_URL as string);
   }
 
-  push(key: string, value: string) {
+  enqueue(key: string, value: string) {
     return this.redis.rpush(key, value);
   }
 

@@ -10,9 +10,12 @@ services:
     environment:
       - DATABASE_URL=postgres://kyle.johnson@host.docker.internal:5432/hunter
       - REDIS_URL=redis://redis:6379/
+    cap_add:
+      - SYS_ADMIN
     depends_on:
       - redis
   pipeline-worker:
+    platform: linux/amd64
     image: hunter-app
     command: node dist/apps/pipeline-worker/main.js
     ports:
@@ -20,6 +23,10 @@ services:
     environment:
       - DATABASE_URL=postgres://kyle.johnson@host.docker.internal:5432/hunter
       - REDIS_URL=redis://redis:6379/
+    security_opt:
+      - seccomp:chrome.json
+    cap_add:
+      - SYS_ADMIN
     depends_on:
       - scheduler
       - redis
@@ -31,6 +38,8 @@ services:
     environment:
       - DATABASE_URL=postgres://kyle.johnson@host.docker.internal:5432/hunter
       - REDIS_URL=redis://redis:6379/
+    cap_add:
+      - SYS_ADMIN
     depends_on:
       - scheduler
       - redis

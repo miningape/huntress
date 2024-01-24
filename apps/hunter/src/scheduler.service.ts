@@ -7,6 +7,8 @@ import { PipelineQueueService } from '@app/helper/queue/pipeline.queue.service';
 import { PrismaService } from '@app/helper/global/prisma.service';
 import { MaterialiseQueueService } from '@app/helper/queue/meterialise.queue.service';
 import * as dayjs from 'dayjs';
+import { PipelineJob } from '@app/helper/job/pipeline.job';
+import { MaterialiseJob } from '@app/helper/job/materialise.job';
 
 @Injectable()
 export class SchedulerService {
@@ -22,8 +24,8 @@ export class SchedulerService {
   @Cron('0 * * * * *')
   async run() {
     this.logger.log('Reading job queue');
-    const jobs = await this.getAllJobs();
 
+    const jobs = await this.getAllJobs();
     for (const job of jobs) {
       const shouldScheduleJob = await this.shouldScheduleJob(job);
       if (shouldScheduleJob) {
@@ -51,16 +53,20 @@ export class SchedulerService {
   private async shouldRunJob(
     execution: Execution & { job: Job & { depends_on: Dependency[] } },
   ) {
-    if (execution.job.depends_on.length > 0) {
-      const baseTime = dayjs(execution.started_at);
-      for (const { depends_on_id } of execution.job.depends_on) {
-        const job = await this.getLatestExecutionForJob(depends_on_id);
-        if (
-          job.status !== 'Finished' ||
-          baseTime.isAfter(dayjs(job.started_at), 'seconds')
-        ) {
-          return false;
-        }
+    const startTime = dayjs(execution.started_at);
+    for (const { depends_on_id } of execution.job.depends_on) {
+      const dependentExecution =
+        await this.getLatestExecutionForJob(depends_on_id);
+
+      if (dependentExecution === null) {
+        return true;
+      }
+
+      if (
+        dependentExecution.status !== 'Finished' ||
+        startTime.isAfter(dayjs(dependentExecution.started_at), 'seconds')
+      ) {
+        return false;
       }
     }
 
@@ -96,11 +102,17 @@ export class SchedulerService {
   private async runJob(executionId: string, job: Job) {
     switch (job.type) {
       case 'Pipeline': {
-        await this.pipelineJobQueue.push(executionId, job.definition);
+        await this.pipelineJobQueue.push(
+          executionId,
+          job.definition as PipelineJob,
+        );
         break;
       }
       case 'Materialise': {
-        await this.materialiseJobQueue.push(executionId, job.definition);
+        await this.materialiseJobQueue.push(
+          executionId,
+          job.definition as MaterialiseJob,
+        );
         break;
       }
       default:
@@ -137,25 +149,17 @@ export class SchedulerService {
       return true;
     }
 
-    if (lastRun.status === 'Scheduling') {
-      return false;
-    }
-
-    if (lastRun.status === 'Scheduled') {
-      return false;
-    }
-
-    if (lastRun.status === 'Running') {
-      return false;
-    }
-
     if (lastRun.status === 'Crashed') {
       return this.checkCrashStatus(job);
     }
 
+    if (lastRun.status !== 'Finished') {
+      return false;
+    }
+
     if (lastRun.stopped_at === null) {
       this.logger.error(
-        'Job is not running but has stopped, id: ' + lastRun.id,
+        'Job is not running but has not stopped, id: ' + lastRun.id,
       );
       return false;
     }

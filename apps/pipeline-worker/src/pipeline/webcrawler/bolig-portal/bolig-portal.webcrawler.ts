@@ -28,16 +28,18 @@ export class BoligPortalWebcrawler implements PipelineSource {
     batchSize: number,
   ): AsyncIterable<HousingEntry> {
     let urls: string[] = [];
+
     for await (const url of urlIterator) {
       urls.push(url);
 
       if (urls.length == batchSize) {
         await delay(1000);
+
         yield* await Promise.all(
           urls.map(async (url) => {
             const page = await this.createPage();
 
-            let housingData = null;
+            let housingData: HousingEntry | null = null;
             try {
               await page.goto(url);
               housingData = await this.pageReader.read(page);
@@ -50,12 +52,14 @@ export class BoligPortalWebcrawler implements PipelineSource {
               });
               console.error(e);
               this.logger.error('Error reading page: ' + url + ',  skipping!');
+            } finally {
+              await page.close();
+              return housingData;
             }
-
-            await page.close();
-            return housingData;
           }),
-        ).then((data) => data.filter((x): x is HousingEntry => x !== null));
+        ).then((pageData) =>
+          pageData.filter((x): x is HousingEntry => x !== null),
+        );
 
         urls = [];
       }

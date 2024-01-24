@@ -7,19 +7,21 @@ export class PuppeteerService implements OnModuleDestroy {
     BOLIG_PORTAL: '@bolig-portal',
   } as const;
 
-  private browsers: Record<string, Browser> = {};
+  private browsers: Record<string, Browser | undefined> = {};
 
-  async get(key: string) {
-    if (!(key in this.browsers)) {
-      this.browsers[key] = await puppeteer.launch({ headless: true });
+  async get(key: string): Promise<Browser> {
+    if (!(key in this.browsers) || this.browsers[key] === undefined) {
+      this.browsers[key] = await puppeteer.launch({
+        headless: 'new',
+      });
     }
 
-    return this.browsers[key];
+    return this.browsers[key]!;
   }
 
   async close(key: string) {
-    if (key in this.browsers) {
-      await this.browsers[key].close();
+    if (key in this.browsers && this.browsers[key] !== undefined) {
+      await this.browsers[key]?.close();
       this.browsers[key] = undefined;
     }
   }

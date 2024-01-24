@@ -21,15 +21,17 @@ Planned Workers:
 - [x] materialise (refresh tables as needed)
 - [ ] notify
 - [ ] analyse (ai / analytics to find desired data)
-- [ ] docker (reads any git repo and runs the dockerfile)
 
 Planned Integrations:
 
-- [x] BoligPortal (pipeline source)
 - [x] Files (pipeline source / destination)
 - [ ] Postgres (pipeline source / destination)
-- [ ] ...
+- [x] BoligPortal.dk (pipeline source)
+- [ ] BoligZonen.dk (pipeline source)
+- [ ] FindBoliger.dk (pipeline source)
 
 Possible Ideas:
 
 - [ ] refactor materialise to generic job
+- [ ] docker worker (reads any git repo and runs the dockerfile)
+- [ ]

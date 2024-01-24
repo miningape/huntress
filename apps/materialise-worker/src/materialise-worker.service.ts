@@ -1,4 +1,4 @@
-import { MaterialiseQueueService } from '@app/helper/queue/meterialise.queue.service';
+import { MaterialiseQueueService } from '@app/helper/queue/materialise.queue.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { MaterialiseJobService } from './materialise/materialise.job.service';

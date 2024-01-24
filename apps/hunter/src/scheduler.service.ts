@@ -5,7 +5,7 @@ import { Dependency, Execution, Job } from '@prisma/client';
 import { ExecutionService } from '@app/helper/execution.service';
 import { PipelineQueueService } from '@app/helper/queue/pipeline.queue.service';
 import { PrismaService } from '@app/helper/global/prisma.service';
-import { MaterialiseQueueService } from '@app/helper/queue/meterialise.queue.service';
+import { MaterialiseQueueService } from '@app/helper/queue/materialise.queue.service';
 import * as dayjs from 'dayjs';
 import { PipelineJob } from '@app/helper/job/pipeline.job';
 import { MaterialiseJob } from '@app/helper/job/materialise.job';

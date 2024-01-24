@@ -3,7 +3,7 @@ import { GlobalModule } from './global/global.module';
 import { PipelineQueueService } from './queue/pipeline.queue.service';
 import { ExecutionService } from './execution.service';
 import { ListingService } from './housing/listing.service';
-import { MaterialiseQueueService } from './queue/meterialise.queue.service';
+import { MaterialiseQueueService } from './queue/materialise.queue.service';
 
 @Module({
   imports: [GlobalModule],

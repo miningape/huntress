@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import puppeteer, { Browser } from 'puppeteer';
 
 @Injectable()
@@ -7,13 +7,20 @@ export class PuppeteerService implements OnModuleDestroy {
     BOLIG_PORTAL: '@bolig-portal',
   } as const;
 
+  private readonly logger = new Logger(PuppeteerService.name);
+
   private browsers: Record<string, Browser | undefined> = {};
 
   async get(key: string): Promise<Browser> {
     if (!(key in this.browsers) || this.browsers[key] === undefined) {
-      this.browsers[key] = await puppeteer.launch({
-        headless: 'new',
-      });
+      try {
+        this.browsers[key] = await puppeteer.launch({
+          headless: 'new',
+        });
+      } catch (e) {
+        this.logger.error(`Error while creating browser for key "${key}"`, e);
+        throw e;
+      }
     }
 
     return this.browsers[key]!;

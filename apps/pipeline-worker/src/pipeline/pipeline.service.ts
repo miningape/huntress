@@ -3,7 +3,7 @@ import { PipelineSource } from './pipeline.source';
 import { PipelineDestination } from './pipeline.destination';
 import { FileService } from './files/file.service';
 import { BoligPortalWebcrawler } from './webcrawler/bolig-portal/bolig-portal.webcrawler';
-import { DatabaseDestination } from './database.destination';
+import { DatabaseDestination } from './database/database.destination';
 import {
   PipelineJobTo,
   PipelineJob,

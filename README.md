@@ -1,7 +1,6 @@
 # Huntress
 
-Highly scalable job scheduler that can easily be configured to run complex workflows. Currently the "frontend" is a postgres database however complex tasks can still easily be configured. Jobs can be "orchestrated"
-meaning that they are able to wait for another job to complete before running, this allows for complex flows of data where the order of completion is not necessarily known. 
+Highly scalable job scheduler that can easily be configured to run complex workflows. Currently the "frontend" is a postgres database however complex tasks can still easily be configured. Jobs can be "orchestrated" meaning that they are able to wait for another job to complete before running, this allows for complex flows of data where the order of completion is not necessarily known. 
 
 Uses JSON job definitions to determine type of job, schedule as well as other necessary parameters. Uses a highly scalable microservice architecture so it can be scaled to massive workloads. 
 
@@ -9,6 +8,8 @@ Uses JSON job definitions to determine type of job, schedule as well as other ne
   - Materialised Views  
   - Web Scraper
 - Orchestrate jobs
+
+Dockerfile is finicky! This is because chromium (used by pipeline-worker / webscraper module) and docker do not play nicely and exposes odd quirks where the underlying architecture (e.g. ARM) can determine if the app can run or not.
 
 Roadmap:
 
@@ -31,13 +32,14 @@ Planned Workers:
 - [ ] analyse (ai / analytics to find desired data)
 - [ ] generic (point at a docker container online)
 
-Planned Integrations:
+Planned Integrations For pipeline:
 
 - [x] Files (pipeline source / destination)
 - [ ] Postgres (pipeline source / destination)
 - [x] BoligPortal.dk (pipeline source)
 - [ ] BoligZonen.dk (pipeline source)
 - [ ] FindBoliger.dk (pipeline source)
+- [ ] Generic / simple scraper for anything
 
 Possible Ideas:
 
